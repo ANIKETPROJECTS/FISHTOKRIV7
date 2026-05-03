@@ -793,22 +793,22 @@ export default function Profile() {
         </div>
 
         {/* Tabs */}
-        <div className="flex mb-6 rounded-full p-1 border-2" style={{ borderColor: "#F05B4E" }}>
+        <div className="flex mb-6 rounded-full p-1 border-2 border-black">
           {TABS.map(tab => {
             const isActive = activeTab === tab;
             return (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                style={isActive ? { backgroundColor: "#364F9F" } : { color: "#F05B4E" }}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-full text-sm font-medium transition-all ${isActive ? "text-white shadow-sm" : "hover:opacity-80"}`}
+                style={isActive ? { backgroundColor: "#F05B4E" } : {}}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-full text-sm font-medium transition-all ${isActive ? "text-white shadow-sm" : "text-slate-700 hover:text-black"}`}
                 data-testid={`tab-${tab.toLowerCase().replace(/\s+/g, "-")}`}
               >
                 {tab === "Profile & Addresses" && (
-                  <img src={headerUserImg} alt="" className="w-4 h-4 object-contain" style={{ filter: isActive ? "brightness(0) invert(1)" : "brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(1620%) hue-rotate(331deg) brightness(99%) contrast(89%)" }} />
+                  <img src={headerUserImg} alt="" className="w-4 h-4 object-contain" style={{ filter: isActive ? "brightness(0) invert(1)" : "brightness(0)" }} />
                 )}
                 {tab === "My Orders" && (
-                  <img src={headerCartImg} alt="" className="w-4 h-4 object-contain" style={{ filter: isActive ? "brightness(0) invert(1)" : "brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(1620%) hue-rotate(331deg) brightness(99%) contrast(89%)" }} />
+                  <img src={headerCartImg} alt="" className="w-4 h-4 object-contain" style={{ filter: isActive ? "brightness(0) invert(1)" : "brightness(0)" }} />
                 )}
                 {tab}
               </button>
@@ -1177,20 +1177,20 @@ export default function Profile() {
         {activeTab === "My Orders" && (
           <div className="space-y-3">
             {/* Active / Previous sub-tabs */}
-            <div className="flex rounded-full p-1 border-2" style={{ borderColor: "#F05B4E" }}>
+            <div className="flex rounded-full p-1 border-2 border-black">
               {(["current", "previous"] as OrdersSubTab[]).map(sub => {
                 const isActive = ordersSubTab === sub;
                 return (
                   <button
                     key={sub}
                     onClick={() => setOrdersSubTab(sub)}
-                    style={isActive ? { backgroundColor: "#364F9F" } : { color: "#F05B4E" }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-full text-sm font-medium transition-all ${isActive ? "text-white shadow-sm" : "hover:opacity-80"}`}
+                    style={isActive ? { backgroundColor: "#F05B4E" } : {}}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-full text-sm font-medium transition-all ${isActive ? "text-white shadow-sm" : "text-slate-700 hover:text-black"}`}
                     data-testid={`tab-orders-${sub}`}
                   >
                     {sub === "current" ? "Active" : "Previous"}
                     {sub === "current" && currentOrders.length > 0 && (
-                      <span className="text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center bg-white" style={{ color: "#364F9F" }}>{currentOrders.length}</span>
+                      <span className="text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center bg-white" style={{ color: "#F05B4E" }}>{currentOrders.length}</span>
                     )}
                   </button>
                 );
