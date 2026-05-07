@@ -4,6 +4,7 @@ import { Header } from "@/components/storefront/Header";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { CartDrawer } from "@/components/storefront/CartDrawer";
 import { SwipeHint } from "@/components/storefront/SwipeHint";
+import { Footer } from "@/components/storefront/Footer";
 import { useProducts } from "@/hooks/use-products";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -359,6 +360,7 @@ export default function Home() {
       </main>
 
       <CartDrawer />
+      <Footer />
     </div>
   );
 }

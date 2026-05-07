@@ -9,6 +9,7 @@ import chickenImg from "@assets/Gemini_Generated_Image_g0ecb4g0ecb4g0ec_17727132
 import muttonImg from "@assets/Gemini_Generated_Image_8fq0338fq0338fq0_1772713565349.png";
 import masalaImg from "@assets/Gemini_Generated_Image_4e60a64e60a64e60_1772713888468.png";
 import menuIcon from "@assets/menu_1774777071510.png";
+import bagIcon from "@/assets/bag-icon.png";
 
 function getFallbackImage(category: string) {
   switch (category) {
@@ -102,10 +103,10 @@ export function CategoryMenuDropdown({ open, onClose }: Props) {
             }`}
             data-testid="menu-category-all"
           >
-            <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 flex items-center justify-center text-2xl sm:text-3xl">
-              🛒
+            <div className="w-16 h-16 sm:w-14 sm:h-14 flex-shrink-0 flex items-center justify-center">
+              <img src={bagIcon} alt="All" className="w-full h-full object-contain mix-blend-multiply" />
             </div>
-            <span className={`text-sm sm:text-base font-medium ${activeCategoryName === "All" ? "text-foreground font-semibold" : "text-slate-700"}`}>
+            <span className={`text-base sm:text-base font-medium ${activeCategoryName === "All" ? "text-foreground font-semibold" : "text-slate-700"}`}>
               All
             </span>
           </button>
@@ -125,10 +126,10 @@ export function CategoryMenuDropdown({ open, onClose }: Props) {
                 }`}
                 data-testid={`menu-category-${cat.name.toLowerCase().replace(/\s+/g, "-")}`}
               >
-                <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">
-                  <img src={img} alt={cat.name} className="w-full h-full object-contain" />
+                <div className="w-16 h-16 sm:w-14 sm:h-14 flex-shrink-0">
+                  <img src={img} alt={cat.name} className="w-full h-full object-contain mix-blend-multiply" />
                 </div>
-                <span className={`text-sm sm:text-base font-medium ${isActive ? "text-foreground font-semibold" : "text-slate-700"}`}>
+                <span className={`text-base sm:text-base font-medium ${isActive ? "text-foreground font-semibold" : "text-slate-700"}`}>
                   {cat.name}
                 </span>
               </button>

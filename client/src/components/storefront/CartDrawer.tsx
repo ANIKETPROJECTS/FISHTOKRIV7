@@ -11,6 +11,7 @@ import popperAnim from "@/assets/lottie/popper.json";
 import emptyAddressAnim from "@/assets/lottie/empty-address.json";
 import orderSuccessAnim from "@/assets/lottie/order-success.json";
 import confettiAnim from "@/assets/lottie/confetti.json";
+import emptyCartBagAnim from "@/assets/lottie/empty-cart-bag.json";
 import { FishTokriLogo } from "@/components/storefront/FishTokriLogo";
 import iconWalletImg from "@assets/wallet_1776953301704.png";
 import headerCartImg from "@assets/shopping-bag_1774706595493.png";
@@ -566,8 +567,10 @@ export function CartDrawer() {
 
               {items.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-6 text-center text-muted-foreground">
-                  <ShoppingBag className="w-16 h-16 mb-4 opacity-10" />
-                  <p className="text-lg font-medium">Your cart is empty</p>
+                  <div className="w-44 h-44 -mb-2">
+                    <Lottie animationData={emptyCartBagAnim} loop autoplay style={{ width: "100%", height: "100%" }} />
+                  </div>
+                  <p className="text-lg font-semibold text-foreground">Your cart is empty</p>
                   <p className="text-sm mt-1 mb-6">Add some fresh items to get started</p>
                   <Button variant="outline" onClick={() => setIsCartOpen(false)} className="rounded-xl">
                     Continue Browsing
