@@ -12,6 +12,10 @@ import {
   ChevronLeft, ShoppingBag, Check, Copy, ChefHat,
   ExternalLink, Star, Sparkles, ShoppingBasket,
 } from "lucide-react";
+import Lottie from "lottie-react";
+import recipesIconAnim from "@/assets/lottie/recipes-icon.json";
+import mayAlsoLikeAnim from "@/assets/lottie/may-also-like.json";
+import iconTimeImg from "@assets/time_1776949603776.png";
 import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
@@ -296,6 +300,7 @@ function ComboImages({ images }: { images: string[] }) {
 function ComboCard({ combo, productMap }: { combo: Combo; productMap: Record<string, Product> }) {
   const [, navigate] = useLocation();
   const savings = combo.originalPrice - combo.discountedPrice;
+  const discountPct = combo.discount > 0 ? combo.discount : null;
   const comboImages = combo.includes
     .map((inc) => {
       const product = productMap[inc.productId];
@@ -305,20 +310,32 @@ function ComboCard({ combo, productMap }: { combo: Combo; productMap: Record<str
   return (
     <div
       onClick={() => navigate(`/combo/${combo.id}`)}
-      className="min-w-[200px] sm:min-w-[220px] snap-start bg-white dark:bg-card border border-border/30 rounded-2xl overflow-hidden hover:shadow-md hover:border-primary/20 transition-all cursor-pointer group flex flex-col"
+      className="w-[210px] sm:w-[230px] snap-start group relative bg-card flex flex-col h-full transition-all duration-300 cursor-pointer"
     >
-      <div className="w-full h-36 bg-muted/20 overflow-hidden rounded-t-2xl">
-        <ComboImages images={comboImages} />
+      <div className="relative aspect-square w-full bg-muted/30 overflow-hidden mb-3 border border-border/20 rounded-xl">
+        <div className="w-full h-full group-hover:scale-110 transition-transform duration-700">
+          <ComboImages images={comboImages} />
+        </div>
+        <div className="absolute top-2 left-2">
+          <span className="bg-primary/90 backdrop-blur text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Combo</span>
+        </div>
       </div>
-      <div className="p-3 flex flex-col gap-1.5 flex-1">
-        <p className="text-xs font-bold text-primary uppercase tracking-wide">Combo</p>
-        <h4 className="text-sm font-bold text-foreground leading-snug line-clamp-2">{combo.name}</h4>
-        <div className="flex items-center gap-2 mt-auto pt-1">
-          <span className="text-base font-bold text-foreground">₹{combo.discountedPrice}</span>
-          <span className="text-xs text-muted-foreground line-through">₹{combo.originalPrice}</span>
+      <div className="flex-1 flex flex-col px-1">
+        <h3 className="font-sans font-medium text-base sm:text-lg text-foreground leading-snug mb-1.5 line-clamp-2">
+          {combo.name}
+        </h3>
+        <p className="text-sm text-muted-foreground mb-2.5 font-normal">
+          {combo.includes.length} items&nbsp;&nbsp;|&nbsp;&nbsp;{combo.weight ?? "Combo pack"}
+        </p>
+        <div className="flex items-center justify-between mt-auto pt-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-lg sm:text-xl font-semibold text-foreground">₹{combo.discountedPrice}</span>
+            <span className="text-sm text-muted-foreground line-through">₹{combo.originalPrice}</span>
+            {discountPct && <span className="text-sm font-semibold text-green-600">{discountPct}% off</span>}
+          </div>
         </div>
         {savings > 0 && (
-          <p className="text-xs text-emerald-600 font-medium">Save ₹{savings}</p>
+          <p className="text-xs text-emerald-600 font-medium mt-1">Save ₹{savings}</p>
         )}
       </div>
     </div>
@@ -606,15 +623,15 @@ export default function ComboDetail() {
 
             {/* Savings highlight */}
             {savings > 0 && (
-              <div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30 rounded-2xl p-4">
-                <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center shrink-0">
-                  <Star className="w-5 h-5 text-amber-600 fill-amber-500" />
+              <div className="flex items-center gap-3 rounded-2xl p-4" style={{ backgroundColor: "#F97316" }}>
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                  <Star className="w-5 h-5 text-white fill-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">
+                  <p className="text-sm font-semibold text-white">
                     You save ₹{savings} ({combo.discount}% off)
                   </p>
-                  <p className="text-xs text-muted-foreground">vs buying each item separately</p>
+                  <p className="text-xs text-white/80">vs buying each item separately</p>
                 </div>
               </div>
             )}
@@ -701,37 +718,59 @@ export default function ComboDetail() {
         {allProductRecipes.length > 0 && (
           <section className="mb-14">
             <div className="flex items-center gap-2 mb-5">
-              <ChefHat className="w-5 h-5 text-accent" />
-              <h2 className="text-xl font-bold text-foreground">Recipes from This Combo</h2>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                <Lottie animationData={recipesIconAnim} loop autoplay />
+              </div>
+              <h2 className="text-lg sm:text-xl font-medium text-foreground">Recipes from This Combo</h2>
             </div>
             <div className="relative">
               <div ref={productRecipesScrollRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
                 {allProductRecipes.map((recipe, idx) => (
                   <div
                     key={idx}
-                    className="min-w-[260px] sm:min-w-[280px] snap-start bg-card border border-border/30 rounded-2xl overflow-hidden hover:shadow-md transition-shadow flex flex-col"
+                    className="min-w-[260px] sm:min-w-[280px] snap-start bg-card border border-border/30 rounded-2xl overflow-hidden hover:shadow-md transition-shadow flex flex-col cursor-pointer"
                   >
-                    <div className="w-full h-44 overflow-hidden bg-muted/20 flex items-center justify-center">
+                    <div className="relative w-full h-44 overflow-hidden bg-muted/20 flex items-center justify-center">
                       {recipe.image ? (
-                        <img src={recipe.image} alt={recipe.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                        <img src={recipe.image} alt={recipe.title} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
                       ) : (
                         <ChefHat className="w-10 h-10 text-muted-foreground/30" />
+                      )}
+                      {recipe.difficulty && (
+                        <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full font-semibold text-[11px] bg-[#F97316] text-white shadow-sm">
+                          {recipe.difficulty}
+                        </span>
                       )}
                     </div>
                     <div className="p-4 flex flex-col flex-1 gap-2">
                       <span className="text-[10px] font-bold uppercase tracking-widest text-primary/70">{recipe.productName}</span>
-                      <h4 className="font-bold text-sm text-foreground leading-snug line-clamp-2">{recipe.title}</h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3 flex-1">{recipe.description}</p>
-                      <div className="flex items-center gap-3 mt-1">
-                        {recipe.totalTime && <span className="text-xs text-muted-foreground">⏱ {recipe.totalTime}</span>}
-                        {recipe.difficulty && (
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                            recipe.difficulty === "Easy" ? "bg-green-100 text-green-700"
-                            : recipe.difficulty === "Medium" ? "bg-amber-100 text-amber-700"
-                            : "bg-red-100 text-red-700"
-                          }`}>{recipe.difficulty}</span>
+                      <h4 className="font-medium text-base text-foreground leading-snug line-clamp-2">{recipe.title}</h4>
+                      <p className="text-xs font-light text-muted-foreground leading-relaxed line-clamp-3 flex-1">{recipe.description}</p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                        {recipe.totalTime && (
+                          <span className="inline-flex items-center gap-1">
+                            <span
+                              aria-hidden
+                              className="w-3.5 h-3.5 inline-block shrink-0"
+                              style={{
+                                backgroundColor: "#364F9F",
+                                WebkitMaskImage: `url(${iconTimeImg})`,
+                                maskImage: `url(${iconTimeImg})`,
+                                WebkitMaskRepeat: "no-repeat",
+                                maskRepeat: "no-repeat",
+                                WebkitMaskSize: "contain",
+                                maskSize: "contain",
+                                WebkitMaskPosition: "center",
+                                maskPosition: "center",
+                              }}
+                            />
+                            {recipe.totalTime}
+                          </span>
                         )}
                       </div>
+                      <button className="mt-1 w-full text-sm font-semibold bg-accent text-white border border-accent rounded-full px-3 py-2 hover:bg-[#364F9F] hover:border-[#364F9F] hover:text-white transition-colors">
+                        View Recipe
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -745,8 +784,10 @@ export default function ComboDetail() {
         {otherCombos.length > 0 && (
           <section className="mb-8">
             <div className="flex items-center gap-2 mb-5">
-              <Sparkles className="w-5 h-5 text-accent" />
-              <h2 className="text-xl font-bold text-foreground">More Combo Deals</h2>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                <Lottie animationData={mayAlsoLikeAnim} loop autoplay />
+              </div>
+              <h2 className="text-lg sm:text-xl font-medium text-foreground">More Combo Deals</h2>
             </div>
             <div className="relative">
               <div ref={combosScrollRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
@@ -762,13 +803,15 @@ export default function ComboDetail() {
         {similarProducts.length > 0 && (
           <section className="mb-12">
             <div className="flex items-center gap-2 mb-5">
-              <ShoppingBasket className="w-5 h-5 text-accent" />
-              <h2 className="text-xl font-bold text-foreground">You May Also Like</h2>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                <Lottie animationData={mayAlsoLikeAnim} loop autoplay />
+              </div>
+              <h2 className="text-lg sm:text-xl font-medium text-foreground">You May Also Like</h2>
             </div>
             <div className="relative">
               <div ref={similarScrollRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
                 {similarProducts.map((p) => (
-                  <div key={p.id} className="w-[172px] sm:w-[190px] shrink-0 snap-start">
+                  <div key={p.id} className="w-[210px] sm:w-[230px] shrink-0 snap-start">
                     <ProductCard product={p} />
                   </div>
                 ))}

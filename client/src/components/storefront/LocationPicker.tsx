@@ -316,11 +316,6 @@ export function LocationPicker() {
             </button>
           </div>
 
-          {/* Centered logo */}
-          <div className="flex justify-center mb-4">
-            <FishTokriLogo className="h-10 w-auto brightness-0 invert" />
-          </div>
-
           {/* Title left, pill right */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
@@ -333,8 +328,8 @@ export function LocationPicker() {
             </div>
             {/* Current location pill — orange bg, no icon, white text, right side */}
             {(selectedSubHub || selectedSuperHub) && (
-              <div className="shrink-0 rounded-full px-3.5 py-1.5" style={{ backgroundColor: BRAND_ORANGE }}>
-                <span className="text-sm font-semibold text-white">
+              <div className="shrink-0 rounded-full px-5 py-2" style={{ backgroundColor: BRAND_ORANGE }}>
+                <span className="text-base font-bold text-white">
                   {selectedSubHub ? selectedSubHub.name : selectedSuperHub?.name}
                 </span>
               </div>
@@ -453,15 +448,15 @@ export function LocationPicker() {
             className="w-full flex items-center gap-4 px-4 py-3 hover:bg-slate-50 rounded-2xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {geoStatus === "detecting" ? (
-              <Loader2 className="w-8 h-8 animate-spin shrink-0" style={{ color: BRAND_BLUE }} />
+              <Loader2 className="w-12 h-12 animate-spin shrink-0" style={{ color: BRAND_BLUE }} />
             ) : (
-              <img src={googleMapsIcon} alt="Maps" className="w-8 h-8 object-contain shrink-0" />
+              <img src={googleMapsIcon} alt="Maps" className="w-12 h-12 object-contain shrink-0" />
             )}
             <div className="text-left">
-              <p className="text-base font-semibold text-slate-800 leading-tight">
+              <p className="text-lg font-bold text-slate-800 leading-tight">
                 {geoStatus === "detecting" ? "Detecting location..." : "Use current location"}
               </p>
-              <p className="text-sm text-slate-500 font-normal mt-0.5">Auto-detect & check serviceability</p>
+              <p className="text-base text-slate-500 font-normal mt-0.5">Auto-detect & check serviceability</p>
             </div>
           </button>
         </div>
