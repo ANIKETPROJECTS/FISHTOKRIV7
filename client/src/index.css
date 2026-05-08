@@ -53,6 +53,14 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+  @keyframes badge-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+  .badge-blink {
+    animation: badge-blink 1.2s ease-in-out infinite;
+  }
+
   .dob-input::-webkit-calendar-picker-indicator {
     opacity: 0;
     display: none;

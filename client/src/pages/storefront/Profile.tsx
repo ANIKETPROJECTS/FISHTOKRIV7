@@ -87,10 +87,10 @@ const emptyAddress: EmptyAddress = {
   pincode: "", type: "house", label: "Home", instructions: "",
 };
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode; bgColor?: string }> = {
-  pending:          { label: "Order Placed",      color: "text-white border-transparent", icon: null, bgColor: "#F97316" },
+const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode; bgColor?: string; blink?: boolean }> = {
+  pending:          { label: "Order Placed",      color: "text-white border-transparent", icon: null, bgColor: "#F97316", blink: true },
   confirmed:        { label: "Confirmed",          color: "text-white border-transparent", icon: null, bgColor: "#364F9F" },
-  out_for_delivery: { label: "Out for Delivery",   color: "text-white border-transparent", icon: null, bgColor: "#F97316" },
+  out_for_delivery: { label: "Out for Delivery",   color: "text-white border-transparent", icon: null, bgColor: "#F97316", blink: true },
   delivered:        { label: "Delivered",          color: "text-white border-transparent", icon: null, bgColor: "#22C55E" },
   cancelled:        { label: "Cancelled",          color: "text-white border-transparent", icon: null, bgColor: "#EF4444" },
 };
@@ -274,7 +274,7 @@ function OrderCard({ order, productImageMap }: { order: OrderRequest; productIma
           </div>
         </div>
         <div
-          className={`flex items-center gap-1 px-3 py-1 rounded-full border text-xs font-semibold shrink-0 ${status.color}`}
+          className={`flex items-center gap-1 px-3 py-1 rounded-full border text-xs font-semibold shrink-0 ${status.color}${status.blink ? " badge-blink" : ""}`}
           style={status.bgColor ? { backgroundColor: status.bgColor } : undefined}
         >
           {status.icon}
@@ -474,7 +474,7 @@ function OrderGridCard({ order, productImageMap }: { order: OrderRequest; produc
           <Package className="w-3.5 h-3.5 text-primary" />
         </div>
         <div
-          className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${status.color}`}
+          className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${status.color}${status.blink ? " badge-blink" : ""}`}
           style={status.bgColor ? { backgroundColor: status.bgColor } : undefined}
         >
           {status.label}
