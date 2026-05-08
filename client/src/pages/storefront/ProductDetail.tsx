@@ -100,13 +100,21 @@ function RecipeCard({
   onViewRecipe: (category: string, index: number) => void;
 }) {
   return (
-    <div className="min-w-[260px] sm:min-w-[280px] snap-start bg-card border border-border/30 rounded-2xl overflow-hidden hover:shadow-md transition-shadow flex flex-col">
-      <div className="w-full h-44 overflow-hidden bg-muted/20">
+    <div
+      className="min-w-[260px] sm:min-w-[280px] snap-start bg-card border border-border/30 rounded-2xl overflow-hidden hover:shadow-md transition-shadow flex flex-col cursor-pointer"
+      onClick={() => onViewRecipe(category, index)}
+    >
+      <div className="relative w-full h-44 overflow-hidden bg-muted/20">
         <img
           src={recipe.image}
           alt={recipe.name}
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
         />
+        {recipe.difficulty && (
+          <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full font-semibold text-[11px] bg-[#F97316] text-white shadow-sm">
+            {recipe.difficulty}
+          </span>
+        )}
       </div>
       <div className="p-4 flex flex-col flex-1 gap-2">
         <h4 className="font-medium text-base text-foreground leading-snug line-clamp-2">{recipe.name}</h4>
@@ -130,12 +138,9 @@ function RecipeCard({
             />
             {recipe.totalTime}
           </span>
-          {recipe.difficulty && (
-            <span className="px-2 py-0.5 rounded-full font-medium text-[11px] bg-[#364F9F] text-white">{recipe.difficulty}</span>
-          )}
         </div>
         <button
-          onClick={() => onViewRecipe(category, index)}
+          onClick={(e) => { e.stopPropagation(); onViewRecipe(category, index); }}
           className="mt-1 w-full text-sm font-semibold bg-accent text-white border border-accent rounded-full px-3 py-2 hover:bg-[#364F9F] hover:border-[#364F9F] hover:text-white transition-colors"
         >
           View Recipe
@@ -456,15 +461,21 @@ export default function ProductDetail() {
                 {product.recipes.map((r, idx) => (
                   <div
                     key={idx}
-                    className="min-w-[260px] sm:min-w-[280px] snap-start bg-card border border-border/30 rounded-2xl overflow-hidden hover:shadow-md transition-shadow flex flex-col"
+                    className="min-w-[260px] sm:min-w-[280px] snap-start bg-card border border-border/30 rounded-2xl overflow-hidden hover:shadow-md transition-shadow flex flex-col cursor-pointer"
+                    onClick={() => setLocation(`/recipe/product/${product.id}/${idx}`)}
                   >
-                    <div className="w-full h-44 overflow-hidden bg-muted/20 flex items-center justify-center">
+                    <div className="relative w-full h-44 overflow-hidden bg-muted/20 flex items-center justify-center">
                       {r.image ? (
                         <img src={r.image} alt={r.title} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
                       ) : (
                         <div className="flex flex-col items-center gap-2 text-muted-foreground/40">
                           <ChefHat className="w-10 h-10" />
                         </div>
+                      )}
+                      {r.difficulty && (
+                        <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full font-semibold text-[11px] bg-[#F97316] text-white shadow-sm">
+                          {r.difficulty}
+                        </span>
                       )}
                     </div>
                     <div className="p-4 flex flex-col flex-1 gap-2">
@@ -491,12 +502,9 @@ export default function ProductDetail() {
                             {r.totalTime}
                           </span>
                         )}
-                        {r.difficulty && (
-                          <span className="px-2 py-0.5 rounded-full font-medium text-[11px] bg-[#364F9F] text-white">{r.difficulty}</span>
-                        )}
                       </div>
                       <button
-                        onClick={() => setLocation(`/recipe/product/${product.id}/${idx}`)}
+                        onClick={(e) => { e.stopPropagation(); setLocation(`/recipe/product/${product.id}/${idx}`); }}
                         className="mt-1 w-full text-sm font-semibold bg-accent text-white border border-accent rounded-full px-3 py-2 hover:bg-[#364F9F] hover:border-[#364F9F] hover:text-white transition-colors"
                       >
                         View Recipe
@@ -542,7 +550,7 @@ export default function ProductDetail() {
                 className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x"
               >
                 {recommended.map((p) => (
-                  <div key={p.id} className="w-[172px] sm:w-[190px] shrink-0 snap-start">
+                  <div key={p.id} className="w-[210px] sm:w-[230px] shrink-0 snap-start">
                     <ProductCard product={p} />
                   </div>
                 ))}
