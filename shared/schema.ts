@@ -146,6 +146,7 @@ export type OrderRequest = {
   timeslotLabel?: string | null;
   instantDeliveryCharge?: number | null;
   coupon?: OrderCoupon | null;
+  paymentMethod?: string | null;
   superHubId?: string | null;
   subHubId?: string | null;
   subHubName?: string | null;
@@ -163,6 +164,7 @@ export type InsertOrderRequest = {
   timeslotLabel?: string | null;
   instantDeliveryCharge?: number | null;
   coupon?: OrderCoupon | null;
+  paymentMethod?: string | null;
   superHubId?: string | null;
   subHubId?: string | null;
   subHubName?: string | null;
@@ -238,6 +240,7 @@ export const insertOrderRequestSchema = z.object({
   instantDeliveryCharge: z.number().nullable().optional(),
   couponCode: z.string().nullable().optional(),
   discountAmount: z.number().nullable().optional(),
+  paymentMethod: z.string().nullable().optional(),
 });
 
 export const insertUserSchema = z.object({

@@ -127,8 +127,11 @@ export function Footer() {
         </div>
 
         {/* Divider + bottom bar */}
-        <div className="border-t border-white/20 pt-5 flex flex-col items-center gap-1 text-center">
-          <p className="text-white text-xs font-medium">
+        <div className="border-t border-white/20 pt-5 flex flex-col sm:grid sm:grid-cols-3 sm:items-center gap-1 sm:gap-0">
+          <p className="text-white/70 text-xs text-center sm:text-left order-2 sm:order-1">
+            © {new Date().getFullYear()} FishTokri. All rights reserved.
+          </p>
+          <p className="text-white text-xs font-medium text-center order-1 sm:order-2">
             Designed and Developed by{" "}
             <a
               href="https://www.airavatatechnologies.com/"
@@ -139,9 +142,7 @@ export function Footer() {
               AIRAVATA TECHNOLOGIES
             </a>
           </p>
-          <p className="text-white/70 text-xs">
-            © {new Date().getFullYear()} FishTokri. All rights reserved.
-          </p>
+          <div className="hidden sm:block order-3" />
         </div>
 
       </div>

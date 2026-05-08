@@ -196,12 +196,12 @@ function TrackOrderModal({ order, onClose }: { order: OrderRequest; onClose: () 
                           src={step.img}
                           alt=""
                           className={`w-7 h-7 object-contain transition-all ${isCurrent && step.status !== "delivered" ? "animate-pulse" : ""}`}
-                          style={{ filter: BRAND_BLUE_FILTER }}
+                          style={{ filter: isCurrent && step.status !== "delivered" ? "invert(56%) sepia(90%) saturate(1200%) hue-rotate(360deg) brightness(100%) contrast(95%)" : BRAND_BLUE_FILTER }}
                         />
                         {isCurrent && step.status !== "delivered" && (
                           <>
-                            <span className="absolute inset-0 rounded-full ring-2 ring-primary/40" />
-                            <span className="absolute inset-0 rounded-full ring-4 ring-primary/20 animate-ping" />
+                            <span className="absolute inset-0 rounded-full ring-2 ring-orange-400/50" />
+                            <span className="absolute inset-0 rounded-full ring-4 ring-orange-400/30 animate-ping" />
                           </>
                         )}
                       </div>
@@ -325,12 +325,12 @@ function OrderCard({ order, productImageMap }: { order: OrderRequest; productIma
                       src={step.img}
                       alt=""
                       className={`w-7 h-7 object-contain transition-all ${isCurrent && step.status !== "delivered" ? "animate-pulse" : ""}`}
-                      style={{ filter: BRAND_BLUE_FILTER }}
+                      style={{ filter: isCurrent && step.status !== "delivered" ? "invert(56%) sepia(90%) saturate(1200%) hue-rotate(360deg) brightness(100%) contrast(95%)" : BRAND_BLUE_FILTER }}
                     />
                     {isCurrent && step.status !== "delivered" && (
                       <>
-                        <span className="absolute inset-0 rounded-full ring-2 ring-primary/40" />
-                        <span className="absolute inset-0 rounded-full ring-4 ring-primary/20 animate-ping" />
+                        <span className="absolute inset-0 rounded-full ring-2 ring-orange-400/50" />
+                        <span className="absolute inset-0 rounded-full ring-4 ring-orange-400/30 animate-ping" />
                       </>
                     )}
                   </div>
@@ -426,7 +426,19 @@ function OrderCard({ order, productImageMap }: { order: OrderRequest; productIma
                 <span>GST (5%)</span><span>Included</span>
               </div>
               <div className="flex justify-between text-sm font-bold text-foreground pt-2 border-t border-slate-200">
-                <span>Total Paid</span><span>₹{total.toLocaleString()}</span>
+                <span>Total</span><span>₹{total.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm pt-2 border-t border-slate-100">
+                <span className="text-muted-foreground">Payment Method</span>
+                <span className="font-semibold text-foreground">
+                  {(order as any).paymentMethod === "upi" ? "UPI" : "Cash on Delivery"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Payment Status</span>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${(order as any).paymentMethod === "upi" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>
+                  {(order as any).paymentMethod === "upi" ? "Paid" : "Unpaid"}
+                </span>
               </div>
             </div>
 

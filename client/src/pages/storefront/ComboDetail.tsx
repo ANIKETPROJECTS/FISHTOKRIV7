@@ -331,6 +331,7 @@ export default function ComboDetail() {
   const { addToCart, setIsCartOpen } = useCart();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [showAllCoupons, setShowAllCoupons] = useState(false);
   const productRecipesScrollRef = useRef<HTMLDivElement>(null);
   const combosScrollRef = useRef<HTMLDivElement>(null);
   const similarScrollRef = useRef<HTMLDivElement>(null);
@@ -678,9 +679,18 @@ export default function ComboDetail() {
                 </div>
 
                 <div className="flex flex-col divide-y divide-border/20 border-t border-border/20">
-                  {liveCoupons.map((c) => (
+                  {(showAllCoupons ? liveCoupons : liveCoupons.slice(0, 3)).map((c) => (
                     <CouponCard key={c.id} code={c.code} desc={c.description} />
                   ))}
+                  {liveCoupons.length > 3 && (
+                    <button
+                      onClick={() => setShowAllCoupons(v => !v)}
+                      className="w-full py-2.5 text-xs font-semibold text-center transition-colors hover:opacity-80"
+                      style={{ color: "#364F9F" }}
+                    >
+                      {showAllCoupons ? "View Less" : `View ${liveCoupons.length - 3} More Offer${liveCoupons.length - 3 > 1 ? "s" : ""}`}
+                    </button>
+                  )}
                 </div>
               </div>
             )}

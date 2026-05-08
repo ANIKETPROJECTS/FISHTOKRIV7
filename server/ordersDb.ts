@@ -28,6 +28,7 @@ const orderSchema = new mongoose.Schema({
   timeslotLabel: { type: String, default: null },
   instantDeliveryCharge: { type: Number, default: null },
   coupon: { type: orderCouponSchema, default: null },
+  paymentMethod: { type: String, default: null },
   superHubId: { type: mongoose.Schema.Types.ObjectId, default: null },
   subHubId: { type: mongoose.Schema.Types.ObjectId, default: null },
   subHubName: { type: String, default: null },

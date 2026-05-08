@@ -81,6 +81,7 @@ function toOrder(doc: any): OrderRequest {
           discountAmount: doc.coupon.discountAmount,
         }
       : null,
+    paymentMethod: doc.paymentMethod ?? null,
     superHubId: doc.superHubId?.toString() ?? null,
     subHubId: doc.subHubId?.toString() ?? null,
     subHubName: doc.subHubName ?? null,
