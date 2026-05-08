@@ -95,7 +95,7 @@ async function reverseGeocode(lat: number, lon: number): Promise<string | null> 
 }
 
 export function LocationPicker() {
-  const mapsReady = useGoogleMaps();
+  const { ready: mapsReady, error: mapsError } = useGoogleMaps();
   const { isPickerOpen, closePicker, setHub, selectedSuperHub, selectedSubHub } = useHub();
   const [step, setStep] = useState<"super" | "sub">("super");
   const [pickedSuper, setPickedSuper] = useState<SuperHub | null>(null);
@@ -323,6 +323,12 @@ export function LocationPicker() {
 
         {/* Search Box — pill format, darker style matching home screen */}
         <div className="px-5 pt-4 pb-2 shrink-0 relative" ref={dropdownRef}>
+          {mapsError ? (
+            <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 text-sm">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>Location search unavailable. Please select your city manually below.</span>
+            </div>
+          ) : (
           <div className="relative">
             {isSearching ? (
               <Loader2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 animate-spin pointer-events-none" />
@@ -353,9 +359,10 @@ export function LocationPicker() {
               </button>
             )}
           </div>
+          )}
 
           {/* Search Dropdown */}
-          {showDropdown && (
+          {!mapsError && showDropdown && (
             <div className="absolute left-5 right-5 top-full mt-1 bg-white rounded-2xl border border-border/50 shadow-2xl z-20 overflow-hidden">
               <button
                 onClick={() => { setShowDropdown(false); setSearchQuery(""); handleDetectLocation(); }}
@@ -415,7 +422,8 @@ export function LocationPicker() {
           </div>
         )}
 
-        {/* Use current location — no card, no bg circle, bigger icon + text */}
+        {/* Use current location — hidden when maps unavailable */}
+        {!mapsError && (
         <div className="px-5 pb-2 shrink-0">
           <button
             onClick={handleDetectLocation}
@@ -436,6 +444,7 @@ export function LocationPicker() {
             </div>
           </button>
         </div>
+        )}
 
         {/* Geo Status Banner */}
         {geoCfg && geoStatus !== "unserviceable" && geoStatus !== "denied" && geoStatus !== "error" && (

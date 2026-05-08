@@ -2,53 +2,73 @@ import { useState, useEffect } from "react";
 
 const SCRIPT_ID = "google-maps-js";
 
-function isLoaded(): boolean {
-  return typeof window !== "undefined" && !!window.google?.maps;
+type MapsState = "loading" | "ready" | "error";
+
+// Module-level state shared across all hook instances
+let _state: MapsState = "loading";
+const _listeners = new Set<(s: MapsState) => void>();
+
+function notify(s: MapsState) {
+  _state = s;
+  _listeners.forEach(fn => fn(s));
 }
 
-function isInDom(): boolean {
-  return !!document.getElementById(SCRIPT_ID);
+// Google Maps calls this when billing/activation fails
+if (typeof window !== "undefined") {
+  (window as any).gm_authFailure = () => {
+    console.warn("[GoogleMaps] Auth failure — billing may not be active on your Google Cloud project.");
+    notify("error");
+  };
 }
 
-const _callbacks: Array<() => void> = [];
+function loadScript() {
+  if (document.getElementById(SCRIPT_ID)) return;
+  const key = (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+  if (!key) {
+    console.error("[GoogleMaps] VITE_GOOGLE_MAPS_API_KEY is not set");
+    notify("error");
+    return;
+  }
+  const script = document.createElement("script");
+  script.id = SCRIPT_ID;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&loading=async`;
+  script.async = true;
+  script.defer = true;
+  script.onload = () => {
+    // gm_authFailure fires right after onload if the key is invalid
+    // wait a tick so it has a chance to fire first
+    setTimeout(() => {
+      if (_state !== "error") notify("ready");
+    }, 300);
+  };
+  script.onerror = () => {
+    console.error("[GoogleMaps] Script failed to load");
+    notify("error");
+  };
+  document.head.appendChild(script);
+}
 
-export function useGoogleMaps(): boolean {
-  const [ready, setReady] = useState(isLoaded);
+export function useGoogleMaps(): { ready: boolean; error: boolean } {
+  const [localState, setLocalState] = useState<MapsState>(() => {
+    if (typeof window !== "undefined" && window.google?.maps) return "ready";
+    return _state;
+  });
 
   useEffect(() => {
-    if (isLoaded()) { setReady(true); return; }
+    // Sync with current module-level state
+    if (_state !== localState) setLocalState(_state);
 
-    const onLoad = () => setReady(true);
-    _callbacks.push(onLoad);
+    const listener = (s: MapsState) => setLocalState(s);
+    _listeners.add(listener);
 
-    if (!isInDom()) {
-      const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
-      if (!key) {
-        console.error("[GoogleMaps] VITE_GOOGLE_MAPS_API_KEY is not set");
-        _callbacks.splice(_callbacks.indexOf(onLoad), 1);
-        return;
-      }
-      const script = document.createElement("script");
-      script.id = SCRIPT_ID;
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&loading=async`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        _callbacks.forEach(cb => cb());
-        _callbacks.length = 0;
-      };
-      script.onerror = () => {
-        console.error("[GoogleMaps] Failed to load script");
-        _callbacks.splice(_callbacks.indexOf(onLoad), 1);
-      };
-      document.head.appendChild(script);
+    // Kick off loading if not already started
+    if (_state === "loading" && !document.getElementById(SCRIPT_ID)) {
+      loadScript();
     }
 
-    return () => {
-      const idx = _callbacks.indexOf(onLoad);
-      if (idx >= 0) _callbacks.splice(idx, 1);
-    };
+    return () => { _listeners.delete(listener); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return ready;
+  return { ready: localState === "ready", error: localState === "error" };
 }

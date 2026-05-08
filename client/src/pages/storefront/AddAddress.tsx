@@ -34,7 +34,7 @@ function GoogleMapPicker({ onConfirm, onClose }: {
   const [pickedArea, setPickedArea] = useState("");
   const [pickedPincode, setPickedPincode] = useState("");
   const [isGeocoding, setIsGeocoding] = useState(false);
-  const mapsReady = useGoogleMaps();
+  const { ready: mapsReady, error: mapsError } = useGoogleMaps();
 
   useEffect(() => {
     if (!mapsReady || !mapDivRef.current || mapRef.current) return;
@@ -98,7 +98,17 @@ function GoogleMapPicker({ onConfirm, onClose }: {
           </Button>
         </div>
 
-        {!mapsReady ? (
+        {mapsError ? (
+          <div className="h-[50vh] flex items-center justify-center bg-slate-50 px-6">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center">
+                <MapPin className="w-7 h-7 text-amber-500" />
+              </div>
+              <p className="text-sm font-semibold text-slate-700">Map unavailable</p>
+              <p className="text-xs text-slate-400 leading-relaxed">Google Maps billing is not active on your account. Please type your area and pincode manually in the fields below.</p>
+            </div>
+          </div>
+        ) : !mapsReady ? (
           <div className="h-[50vh] flex items-center justify-center bg-slate-50">
             <div className="flex flex-col items-center gap-3 text-slate-400">
               <Loader2 className="w-8 h-8 animate-spin" />
