@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import type { SavedAddress } from "@/components/storefront/CartDrawer";
 import { ChevronLeft, Home, Briefcase, Tag, MapPin, X, Loader2 } from "lucide-react";
+import { useGoogleMaps } from "@/hooks/use-google-maps";
 
 declare global { interface Window { google: any } }
 
@@ -33,18 +34,7 @@ function GoogleMapPicker({ onConfirm, onClose }: {
   const [pickedArea, setPickedArea] = useState("");
   const [pickedPincode, setPickedPincode] = useState("");
   const [isGeocoding, setIsGeocoding] = useState(false);
-  const [mapsReady, setMapsReady] = useState(false);
-
-  useEffect(() => {
-    const check = () => {
-      if (window.google?.maps) { setMapsReady(true); return true; }
-      return false;
-    };
-    if (!check()) {
-      const t = setInterval(() => { if (check()) clearInterval(t); }, 300);
-      return () => clearInterval(t);
-    }
-  }, []);
+  const mapsReady = useGoogleMaps();
 
   useEffect(() => {
     if (!mapsReady || !mapDivRef.current || mapRef.current) return;

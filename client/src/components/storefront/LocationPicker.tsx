@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { X, ChevronLeft, MapPin, Check, Loader2, AlertCircle, CheckCircle2, Search } from "lucide-react";
 import { useHub, SuperHub, SubHub } from "@/context/HubContext";
 import { FishTokriLogo } from "@/components/storefront/FishTokriLogo";
+import { useGoogleMaps } from "@/hooks/use-google-maps";
 import googleMapsIcon from "@assets/logo_(15)_1778186984164.png";
 
 type GeoStatus = "idle" | "detecting" | "serviceable" | "unserviceable" | "denied" | "error";
@@ -94,6 +95,7 @@ async function reverseGeocode(lat: number, lon: number): Promise<string | null> 
 }
 
 export function LocationPicker() {
+  const mapsReady = useGoogleMaps();
   const { isPickerOpen, closePicker, setHub, selectedSuperHub, selectedSubHub } = useHub();
   const [step, setStep] = useState<"super" | "sub">("super");
   const [pickedSuper, setPickedSuper] = useState<SuperHub | null>(null);
