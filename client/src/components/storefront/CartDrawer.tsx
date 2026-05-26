@@ -493,7 +493,7 @@ export function CartDrawer() {
       toast({ title: "Please select a delivery time slot", variant: "destructive" });
       return;
     }
-    const fullAddress = [selected.building, selected.street, selected.area, selected.pincode].filter(Boolean).join(", ");
+    const fullAddress = `${selected.building} · ${selected.street}, ${selected.area} · ${selected.pincode}`;
     const orderItems = items.map(i => ({
       productId: i.originalId ?? String(i.id),
       quantity: i.quantity,

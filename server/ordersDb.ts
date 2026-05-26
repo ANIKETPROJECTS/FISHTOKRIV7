@@ -71,15 +71,10 @@ const orderSchema = new mongoose.Schema(
     inventoryDeducted: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
-    orderId: { type: String, default: null },
+    orderId: { type: String },
   },
   { versionKey: false }
 );
-
-const orderIdCounterSchema = new mongoose.Schema({
-  date: { type: String, required: true, unique: true },
-  seq: { type: Number, default: 0 },
-});
 
 export async function connectOrdersDb() {
   if (!ordersConnection) {
@@ -98,32 +93,23 @@ export function getOrderModel() {
   return ordersConnection.models["Order"] || ordersConnection.model("Order", orderSchema);
 }
 
-export function getOrderIdCounterModel() {
-  if (!ordersConnection) {
-    throw new Error("Orders DB not connected. Call connectOrdersDb() first.");
-  }
-  return (
-    ordersConnection.models["OrderIdCounter"] ||
-    ordersConnection.model("OrderIdCounter", orderIdCounterSchema, "order_id_counters")
-  );
-}
-
 /**
- * Atomically increments the daily counter and returns the next orderId.
- * Uses the same `order_id_counters` collection as the admin POS panel.
- * Format: #FTS{YYYYMMDD}{N} — e.g. #FTS202605271
+ * Generates the next orderId by counting all existing orders (admin + online)
+ * whose orderId starts with today's IST date prefix, then adding 1.
+ * This shares the same sequence pool as the admin POS panel.
+ * Format: #FTS{YYYYMMDD}{N} — e.g. #FTS202605275
+ *
+ * Must be called AFTER the new order is saved (without an orderId) so the
+ * count does not include the current order and the result is N+1.
  */
 export async function generateOrderId(): Promise<string> {
-  // Always use IST (UTC+5:30) for the date key so orders placed after
-  // midnight IST get the correct day's sequence number.
   const now = new Date();
+  // Use IST (UTC+5:30) so orders placed after midnight IST get the correct date.
   const istDate = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
-  const date = istDate.toISOString().slice(0, 10).replace(/-/g, ""); // "YYYYMMDD"
-  const Counter = getOrderIdCounterModel();
-  const counter = await Counter.findOneAndUpdate(
-    { date },
-    { $inc: { seq: 1 } },
-    { new: true, upsert: true }
-  ).lean() as any;
-  return `#FTS${date}${counter.seq}`;
+  const dateStr = istDate.toISOString().slice(0, 10).replace(/-/g, ""); // "YYYYMMDD"
+  const OrderModel = getOrderModel();
+  const count = await OrderModel.countDocuments({
+    orderId: { $regex: `^#FTS${dateStr}` },
+  });
+  return `#FTS${dateStr}${count + 1}`;
 }

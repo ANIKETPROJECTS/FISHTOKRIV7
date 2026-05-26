@@ -389,11 +389,6 @@ export async function registerRoutes(
     try {
       const input = api.orders.create.input.parse(req.body);
 
-      // Generate daily-sequential FTS order ID using the same atomic counter
-      // collection as the admin POS panel (order_id_counters).
-      // Format: #FTS{YYYYMMDD}{N} — e.g. #FTS202605271
-      const generatedOrderId = await generateOrderId();
-
       // FIFO inventory deduction if hubDbName is provided
       if (input.hubDbName) {
         try {
@@ -593,7 +588,10 @@ export async function registerRoutes(
 
       const order = await storage.createOrderRequest(orderInput);
 
-      // Append orderId as the last field on the document (matching admin POS behaviour).
+      // Generate orderId AFTER the document is saved — countDocuments gives the correct
+      // shared sequence across admin + online orders, and $set appends orderId as the
+      // last field (matching admin POS document structure).
+      const generatedOrderId = await generateOrderId();
       await getOrderModel().findByIdAndUpdate(order.id, { $set: { orderId: generatedOrderId } });
 
       const orderItemsTotal = (order.items as any[]).reduce((sum: number, item: any) => {
