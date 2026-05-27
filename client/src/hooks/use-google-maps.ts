@@ -48,6 +48,27 @@ function loadScript() {
   document.head.appendChild(script);
 }
 
+export function waitForMapsReady(timeoutMs = 10000): Promise<boolean> {
+  if (_state === "ready") return Promise.resolve(true);
+  if (_state === "error") return Promise.resolve(false);
+  // Also kick off loading if no script tag yet
+  if (!document.getElementById(SCRIPT_ID)) loadScript();
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      _listeners.delete(listener);
+      resolve(false);
+    }, timeoutMs);
+    const listener = (s: MapsState) => {
+      if (s === "ready" || s === "error") {
+        clearTimeout(timer);
+        _listeners.delete(listener);
+        resolve(s === "ready");
+      }
+    };
+    _listeners.add(listener);
+  });
+}
+
 export function useGoogleMaps(): { ready: boolean; error: boolean } {
   const [localState, setLocalState] = useState<MapsState>(() => {
     if (typeof window !== "undefined" && window.google?.maps) return "ready";

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { X, ChevronLeft, MapPin, Check, Loader2, AlertCircle, CheckCircle2, Search, Navigation } from "lucide-react";
 import { useHub, SuperHub, SubHub } from "@/context/HubContext";
 import { FishTokriLogo } from "@/components/storefront/FishTokriLogo";
-import { useGoogleMaps } from "@/hooks/use-google-maps";
+import { useGoogleMaps, waitForMapsReady } from "@/hooks/use-google-maps";
 import googleMapsIcon from "@assets/logo_(15)_1778186984164.png";
 import locationImg from "@assets/placeholder_(1)_1774706943633.png";
 
@@ -72,7 +72,8 @@ async function googlePlacesSearch(query: string): Promise<GooglePrediction[]> {
 }
 
 async function getPincodeFromPlaceId(placeId: string): Promise<string | null> {
-  if (!window.google?.maps) return null;
+  const ready = await waitForMapsReady(8000);
+  if (!ready || !window.google?.maps) return null;
   return new Promise((resolve) => {
     const geocoder = new window.google.maps.Geocoder();
     geocoder.geocode({ placeId }, (results: any, status: string) => {
@@ -84,7 +85,8 @@ async function getPincodeFromPlaceId(placeId: string): Promise<string | null> {
 }
 
 async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
-  if (!window.google?.maps) return null;
+  const ready = await waitForMapsReady(8000);
+  if (!ready || !window.google?.maps) return null;
   return new Promise((resolve) => {
     const geocoder = new window.google.maps.Geocoder();
     geocoder.geocode({ location: { lat, lng: lon } }, (results: any, status: string) => {
@@ -142,8 +144,11 @@ export function LocationPicker() {
     enabled: isPickerOpen,
   });
 
+  const autoDetectedForCurrentOpen = useRef(false);
+
   useEffect(() => {
     if (isPickerOpen) {
+      autoDetectedForCurrentOpen.current = false;
       setStep("super");
       setPickedSuper(selectedSuperHub);
       setGeoStatus("idle");
@@ -155,15 +160,6 @@ export function LocationPicker() {
       setShowDropdown(false);
       setShowPermissionPopup(false);
       setTimeout(() => searchInputRef.current?.focus(), 250);
-
-      // Auto-detect location if permission is already granted
-      if (navigator.permissions) {
-        navigator.permissions.query({ name: "geolocation" }).then((result) => {
-          if (result.state === "granted") {
-            setTimeout(() => handleDetectLocation(), 400);
-          }
-        }).catch(() => {});
-      }
     }
   }, [isPickerOpen]);
 
@@ -266,6 +262,18 @@ export function LocationPicker() {
       { timeout: 10000, maximumAge: 60000 }
     );
   }, [allSubHubs, superHubs, setHub]);
+
+  // Auto-detect when picker opens AND hub data is ready — must be after handleDetectLocation
+  useEffect(() => {
+    if (!isPickerOpen || allSubHubs.length === 0 || autoDetectedForCurrentOpen.current) return;
+    if (!navigator.permissions) return;
+    navigator.permissions.query({ name: "geolocation" }).then((result) => {
+      if (result.state === "granted" && !autoDetectedForCurrentOpen.current) {
+        autoDetectedForCurrentOpen.current = true;
+        handleDetectLocation();
+      }
+    }).catch(() => {});
+  }, [isPickerOpen, allSubHubs.length, handleDetectLocation]);
 
   if (!isPickerOpen) return null;
 
