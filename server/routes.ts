@@ -686,10 +686,10 @@ export async function registerRoutes(
         couponIds,
         couponCodes,
         coupons,
-        paymentStatus: "unpaid",
-        payments: [],
-        paidAmount: 0,
-        dueAmount: total,
+        paymentStatus: input.paymentStatus ?? "unpaid",
+        payments: input.payments ?? [],
+        paidAmount: input.paidAmount ?? 0,
+        dueAmount: input.dueAmount ?? total,
         paymentMode,
         scheduleType: input.scheduleType ?? "slot",
         deliveryDate,
@@ -762,13 +762,15 @@ export async function registerRoutes(
         }
       }
 
-      // Deduct wallet balance if customer used wallet funds
-      const walletAmountUsed = (input as any).walletAmountUsed ?? 0;
-      if (walletAmountUsed > 0 && input.customerId) {
+      // Deduct wallet balance — read from payments[].mode === "wallet" (admin-compatible)
+      const walletPayments = (input.payments ?? []).filter((p: any) => p.mode === "wallet");
+      const walletUsed = walletPayments.reduce((sum: number, p: any) => sum + Number(p.amount ?? 0), 0);
+      if (walletUsed > 0 && input.customerId) {
         try {
           await CustomerDbModel.findByIdAndUpdate(input.customerId, {
-            $inc: { walletBalance: -walletAmountUsed },
+            $inc: { walletBalance: -walletUsed },
           });
+          console.log(`[Wallet] Deducted ₹${walletUsed} from customer ${input.customerId}`);
         } catch (walletErr) {
           console.error("[Wallet] Deduction error:", walletErr);
         }

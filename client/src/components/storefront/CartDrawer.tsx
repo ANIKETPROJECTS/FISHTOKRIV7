@@ -567,6 +567,26 @@ export function CartDrawer() {
     const today = new Date();
     const deliveryDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
+    // Build payments array per admin-panel spec:
+    // - wallet entry first (if wallet used)
+    // - then remaining cash/UPI entry
+    // - pure COD with no wallet → payments stays [] (unpaid until delivery)
+    const cashMode = paymentMethod === "online" ? "upi" : "cash";
+    const orderPayments: Array<{ mode: string; amount: number; reference: string }> = [];
+    if (walletDeduction > 0) {
+      orderPayments.push({ mode: "wallet", amount: walletDeduction, reference: "" });
+      if (finalTotal > 0) {
+        orderPayments.push({ mode: cashMode, amount: finalTotal, reference: "" });
+      }
+    } else if (paymentMethod === "online") {
+      orderPayments.push({ mode: "upi", amount: rawTotal, reference: "" });
+    }
+    // pure COD (no wallet): orderPayments stays []
+
+    const paidAmount = orderPayments.reduce((sum, p) => sum + p.amount, 0);
+    const dueAmount = rawTotal - paidAmount;
+    const paymentStatus = paidAmount === 0 ? "unpaid" : paidAmount >= rawTotal ? "paid" : "partial";
+
     createOrder(
       {
         customerName: selected.name || customer?.name || "",
@@ -592,7 +612,11 @@ export function CartDrawer() {
         subtotal,
         discount: discountAmount,
         slotCharge,
-        total: finalTotal,
+        total: rawTotal,
+        payments: orderPayments,
+        paidAmount,
+        dueAmount,
+        paymentStatus,
         source: "online",
         deliveryType: "delivery",
         scheduleType: selectedTimeslot.isInstant ? "instant" : "slot",
@@ -604,7 +628,6 @@ export function CartDrawer() {
         couponCode: appliedCoupon?.code ?? null,
         discountAmount: discountAmount > 0 ? discountAmount : null,
         paymentMode: paymentMethod === "online" ? "upi" : "cash",
-        walletAmountUsed: walletDeduction > 0 ? walletDeduction : null,
       } as any,
       {
         onSuccess: () => {

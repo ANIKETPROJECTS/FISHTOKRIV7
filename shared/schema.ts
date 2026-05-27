@@ -301,6 +301,14 @@ export const insertOrderRequestSchema = z.object({
   paymentMethod: z.string().nullable().optional(),
   paymentMode: z.string().nullable().optional(),
   walletAmountUsed: z.number().nullable().optional(),
+  payments: z.array(z.object({
+    mode: z.string(),
+    amount: z.number(),
+    reference: z.string().optional(),
+  })).nullable().optional(),
+  paidAmount: z.number().nullable().optional(),
+  dueAmount: z.number().nullable().optional(),
+  paymentStatus: z.string().nullable().optional(),
 });
 
 export const insertUserSchema = z.object({
