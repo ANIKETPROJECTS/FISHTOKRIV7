@@ -681,6 +681,15 @@ export function CartDrawer() {
     );
   };
 
+  // Safety net: always clear the cart when the success screen is shown,
+  // regardless of whether the mutation onSuccess callback fires.
+  useEffect(() => {
+    if (isSuccess) {
+      clearCart();
+      setUseWallet(false);
+    }
+  }, [isSuccess]);
+
   const handleClose = (open: boolean) => {
     if (!open && isSuccess) setTimeout(() => setIsSuccess(false), 300);
     setIsCartOpen(open);
@@ -1172,17 +1181,27 @@ export function CartDrawer() {
                               <X className="w-3.5 h-3.5" />
                             </Button>
                           </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Pincode</Label>
+                            <input
+                              type="tel"
+                              inputMode="numeric"
+                              maxLength={6}
+                              value={addForm.pincode}
+                              onChange={e => {
+                                const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                                setAddForm(f => ({ ...f, pincode: val }));
+                                if (val.length === 6 && !checkPincodeServiceability(val)) {
+                                  setUnserviceablePincode(val);
+                                  setShowUnserviceablePopup(true);
+                                }
+                              }}
+                              placeholder="400601"
+                              className="w-full bg-transparent border-0 border-b border-border/60 focus:border-[#364F9F] focus:outline-none px-0 py-1.5 text-sm transition-colors"
+                              data-testid="input-address-pincode"
+                            />
+                          </div>
                           <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Full Name *</Label>
-                              <input
-                                value={addForm.name}
-                                onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))}
-                                placeholder="Recipient name"
-                                className="w-full bg-transparent border-0 border-b border-border/60 focus:border-[#364F9F] focus:outline-none px-0 py-1.5 text-sm transition-colors"
-                                data-testid="input-address-name"
-                              />
-                            </div>
                             <div className="space-y-1">
                               <Label className="text-xs text-muted-foreground">Phone *</Label>
                               <input
@@ -1194,6 +1213,16 @@ export function CartDrawer() {
                                 placeholder="10-digit mobile"
                                 className="w-full bg-transparent border-0 border-b border-border/60 focus:border-[#364F9F] focus:outline-none px-0 py-1.5 text-sm transition-colors"
                                 data-testid="input-address-phone"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs text-muted-foreground">Full Name *</Label>
+                              <input
+                                value={addForm.name}
+                                onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))}
+                                placeholder="Recipient name"
+                                className="w-full bg-transparent border-0 border-b border-border/60 focus:border-[#364F9F] focus:outline-none px-0 py-1.5 text-sm transition-colors"
+                                data-testid="input-address-name"
                               />
                             </div>
                           </div>
@@ -1217,37 +1246,15 @@ export function CartDrawer() {
                               data-testid="input-address-street"
                             />
                           </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Area / Suburb *</Label>
-                              <input
-                                value={addForm.area}
-                                onChange={e => setAddForm(f => ({ ...f, area: e.target.value }))}
-                                placeholder="e.g. Thane West"
-                                className="w-full bg-transparent border-0 border-b border-border/60 focus:border-[#364F9F] focus:outline-none px-0 py-1.5 text-sm transition-colors"
-                                data-testid="input-address-area"
-                              />
-                            </div>
-                            <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Pincode</Label>
-                              <input
-                                type="tel"
-                                inputMode="numeric"
-                                maxLength={6}
-                                value={addForm.pincode}
-                                onChange={e => {
-                                  const val = e.target.value.replace(/\D/g, "").slice(0, 6);
-                                  setAddForm(f => ({ ...f, pincode: val }));
-                                  if (val.length === 6 && !checkPincodeServiceability(val)) {
-                                    setUnserviceablePincode(val);
-                                    setShowUnserviceablePopup(true);
-                                  }
-                                }}
-                                placeholder="400601"
-                                className="w-full bg-transparent border-0 border-b border-border/60 focus:border-[#364F9F] focus:outline-none px-0 py-1.5 text-sm transition-colors"
-                                data-testid="input-address-pincode"
-                              />
-                            </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Area / Suburb *</Label>
+                            <input
+                              value={addForm.area}
+                              onChange={e => setAddForm(f => ({ ...f, area: e.target.value }))}
+                              placeholder="e.g. Thane West"
+                              className="w-full bg-transparent border-0 border-b border-border/60 focus:border-[#364F9F] focus:outline-none px-0 py-1.5 text-sm transition-colors"
+                              data-testid="input-address-area"
+                            />
                           </div>
                           <div className="space-y-2">
                             <Label className="text-xs text-muted-foreground">Address Type</Label>
