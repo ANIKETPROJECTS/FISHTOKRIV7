@@ -2,7 +2,8 @@ import { useState, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { useHub, SuperHub, SubHub } from "@/context/HubContext";
-import scooterImg from "@assets/animation-original_(50)_1779948531895.png";
+import Lottie from "lottie-react";
+import deliveryAnim from "@assets/animation-original_(21)_1779949238004.json";
 
 const BRAND_BLUE = "#364F9F";
 
@@ -120,27 +121,25 @@ export function LocationPicker() {
 
       <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 fade-in duration-200">
 
-        {/* Scooter image — no header bar */}
-        <div className="flex justify-center pt-7 pb-2 px-6">
-          <img
-            src={scooterImg}
-            alt="Delivery"
-            className="w-36 h-auto object-contain"
-          />
+        {/* Lottie animation */}
+        <div className="flex justify-center pt-7 pb-1 px-6">
+          <div className="w-44 h-44">
+            <Lottie animationData={deliveryAnim} loop autoplay />
+          </div>
         </div>
 
         {/* Text */}
         <div className="px-7 pb-2 text-center">
-          <h2 className="text-lg font-semibold text-slate-800 mb-1" style={{ fontWeight: 500 }}>
-            Check Delivery
+          <h2 className="text-lg font-semibold text-slate-800 mb-1.5" style={{ fontWeight: 500 }}>
+            Check Availability
           </h2>
-          <p className="text-sm text-slate-400 leading-relaxed font-normal">
-            Enter your pincode to see if we deliver to your area
+          <p className="text-sm leading-relaxed font-normal text-black">
+            Freshly cut seafood &amp; meat, hygienically packed and delivered to your doorstep.
           </p>
         </div>
 
-        {/* 6-box pincode input */}
-        <div className="px-7 py-4">
+        {/* 6-box pincode input — square boxes */}
+        <div className="px-7 py-5">
           <div className="flex items-center justify-center gap-2">
             {digits.map((digit, i) => (
               <input
@@ -154,7 +153,7 @@ export function LocationPicker() {
                 onKeyDown={(e) => handleKeyDown(i, e)}
                 onPaste={i === 0 ? handlePaste : undefined}
                 autoFocus={i === 0}
-                className="w-10 h-12 text-center text-lg font-semibold rounded-xl border-2 outline-none transition-all duration-150 text-slate-800"
+                className="w-10 h-10 text-center text-base font-semibold rounded-lg border-2 outline-none transition-all duration-150 text-slate-800"
                 style={{
                   borderColor:
                     status === "eligible"

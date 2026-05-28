@@ -169,10 +169,10 @@ export default function ProductDetail() {
     : 999;
   const [offersExpanded, setOffersExpanded] = useState(false);
 
-  // Sync the qty stepper with what's already in the cart
+  // Reset local qty when navigating to a different product
   useEffect(() => {
-    setQty(currentCartQty > 0 ? currentCartQty : 1);
-  }, [productId, currentCartQty]);
+    setQty(1);
+  }, [productId]);
 
   const { coupons: rawProductCoupons } = useProductCoupons(productId, product?.couponIds ?? []);
   const { data: userCouponUsage = {} } = useQuery<Record<string, { usedCount: number; limit: number; isExhausted: boolean; message: string }>>({
@@ -392,19 +392,35 @@ export default function ProductDetail() {
             {(() => {
               const totalMax = product.availableQty != null ? product.availableQty : 999;
               const isInCart = currentCartQty > 0;
+              // When in cart, the displayed qty IS the cart qty (real-time synced).
+              // When not in cart, use local qty state.
+              const displayQty = isInCart ? currentCartQty : qty;
+
               return (
                 <div className="flex items-center gap-4">
                   <div className="flex items-center border border-border/40 rounded-full overflow-hidden">
                     <button
-                      onClick={() => setQty(q => Math.max(isInCart ? 1 : 1, q - 1))}
+                      onClick={() => {
+                        if (isInCart) {
+                          updateQuantity(cartItem!.id, currentCartQty - 1);
+                        } else {
+                          setQty(q => Math.max(1, q - 1));
+                        }
+                      }}
                       className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="w-10 text-center font-semibold text-sm">{qty}</span>
+                    <span className="w-10 text-center font-semibold text-sm">{displayQty}</span>
                     <button
-                      onClick={() => setQty(q => Math.min(q + 1, totalMax))}
-                      disabled={qty >= totalMax}
+                      onClick={() => {
+                        if (isInCart) {
+                          updateQuantity(cartItem!.id, currentCartQty + 1);
+                        } else {
+                          setQty(q => Math.min(q + 1, totalMax));
+                        }
+                      }}
+                      disabled={displayQty >= totalMax}
                       className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <Plus className="w-4 h-4" />
@@ -413,19 +429,17 @@ export default function ProductDetail() {
                   <Button
                     onClick={() => {
                       if (!customer) { openLoginModal(); return; }
-                      if (isInCart) {
-                        updateQuantity(cartItem!.id, qty);
-                      } else {
+                      if (!isInCart) {
                         addToCart(product, qty, true);
                       }
                     }}
-                    disabled={isUnavailable || totalMax <= 0}
+                    disabled={isUnavailable || totalMax <= 0 || (isInCart && false)}
                     className="flex-1 h-11 rounded-full bg-primary hover:bg-primary/90 text-white font-semibold text-sm shadow-md"
                   >
                     {isUnavailable
                       ? "Out of Stock"
                       : isInCart
-                      ? `Update Cart — ₹${(product.price ?? 0) * qty}`
+                      ? `In Cart — ₹${(product.price ?? 0) * currentCartQty}`
                       : `Add ${qty} to Cart — ₹${(product.price ?? 0) * qty}`}
                   </Button>
                 </div>
