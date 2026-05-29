@@ -128,6 +128,10 @@ const timeslotSchema = new mongoose.Schema({
   extraCharge: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
   sortOrder: { type: Number, default: 0 },
+  orderLimit: { type: Number, default: 10 },
+  todaysOrderCount: { type: Number, default: 0 },
+  nextDayOrderCount: { type: Number, default: 0 },
+  limitedByOrders: { type: Boolean, default: false },
 });
 
 const couponUsageSchema = new mongoose.Schema({

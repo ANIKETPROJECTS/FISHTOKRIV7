@@ -767,6 +767,19 @@ export async function registerRoutes(
         }
       }
 
+      // Increment timeslot order count (today vs next-day)
+      if (input.timeslotId && input.hubDbName && input.scheduleType !== "instant") {
+        try {
+          const hub = await getHubModels(input.hubDbName);
+          const today = new Date();
+          const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+          const countField = (input.deliveryDate && input.deliveryDate !== todayStr) ? "nextDayOrderCount" : "todaysOrderCount";
+          await hub.Timeslot.findByIdAndUpdate(input.timeslotId, { $inc: { [countField]: 1 } });
+        } catch (timeslotCountErr) {
+          console.error("[Timeslot] Count increment error:", timeslotCountErr);
+        }
+      }
+
       // Deduct wallet balance — read from payments[].mode === "wallet" (admin-compatible)
       const walletPayments = (input.payments ?? []).filter((p: any) => p.mode === "wallet");
       const walletUsed = walletPayments.reduce((sum: number, p: any) => sum + Number(p.amount ?? 0), 0);
@@ -1337,6 +1350,10 @@ export async function registerRoutes(
     extraCharge: doc.extraCharge ?? 0,
     isActive: doc.isActive ?? true,
     sortOrder: doc.sortOrder ?? 0,
+    orderLimit: doc.orderLimit ?? 10,
+    todaysOrderCount: doc.todaysOrderCount ?? 0,
+    nextDayOrderCount: doc.nextDayOrderCount ?? 0,
+    limitedByOrders: doc.limitedByOrders ?? false,
   });
 
   app.get("/api/timeslots", async (req, res) => {

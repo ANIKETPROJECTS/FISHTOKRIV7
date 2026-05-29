@@ -122,6 +122,10 @@ export type Timeslot = {
   extraCharge: number;
   isActive: boolean;
   sortOrder: number;
+  orderLimit: number;
+  todaysOrderCount: number;
+  nextDayOrderCount: number;
+  limitedByOrders: boolean;
 };
 
 export type OrderCoupon = {

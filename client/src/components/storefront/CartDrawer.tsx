@@ -306,12 +306,17 @@ export function CartDrawer() {
       const startTime = parseTimeStr(startStr);
       if (startTime && now >= startTime) return false;
     }
+    // Check today's order limit
+    if (slot.limitedByOrders && slot.orderLimit > 0 && slot.todaysOrderCount >= slot.orderLimit) return false;
     return true;
   }, [parseTimeStr, extractSlotStartTime]);
 
   const availableTimeslots = timeslots.filter(isSlotAvailable);
-  const displayTimeslots = isNextDay ? timeslots.filter(t => !t.isInstant) : availableTimeslots;
-  const selectedTimeslot = (isNextDay ? timeslots : availableTimeslots).find(t => t.id === selectedTimeslotId) ?? null;
+  const nextDayAvailableTimeslots = timeslots.filter(t =>
+    !t.isInstant && (!t.limitedByOrders || t.orderLimit <= 0 || t.nextDayOrderCount < t.orderLimit)
+  );
+  const displayTimeslots = isNextDay ? nextDayAvailableTimeslots : availableTimeslots;
+  const selectedTimeslot = (isNextDay ? nextDayAvailableTimeslots : availableTimeslots).find(t => t.id === selectedTimeslotId) ?? null;
 
   useEffect(() => {
     if (selectedTimeslotId && !displayTimeslots.find(t => t.id === selectedTimeslotId)) {
